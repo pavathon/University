@@ -10,7 +10,7 @@ import java.util.*;
 public class CandidateP1
 {
     private double fitness;     // Fitness of solution
-    private double[] solution;  // Solution values
+    private final double[] solution;  // Solution values
     
     /**
      * Constructor for Candidate class for problem 2.
