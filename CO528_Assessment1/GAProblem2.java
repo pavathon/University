@@ -1,7 +1,7 @@
 import java.lang.Math;
 import java.util.*;
 /**
- * Write a description of class GAProblem2 here.
+ * Algorithm used to solve the knapsack problem which has 100 boolean values.
  *
  * @author Mark Browne
  * @version 1
