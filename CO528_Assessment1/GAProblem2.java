@@ -1,3 +1,4 @@
+
 import java.lang.Math;
 import java.util.*;
 /**
@@ -8,11 +9,11 @@ import java.util.*;
  */
 public class GAProblem2
 {
-    private CandidateP2[] population;                   // Population which consists of candidate solutions
-    private final int solSize, popSize;                 // Size of solutions and population
-    private double[] utility, weight, probabilityFit;   // Utility, weight and probability of each solution
-    private final double mutationRate, crossoverRate;   // Rate of mutation and rate of crossover applied to population
-    private Random rand;
+    private CandidateP2[] population;                       // Population which consists of candidate solutions
+    private final int solSize, popSize;                     // Size of solutions and population
+    private final double[] utility, weight, probabilityFit; // Utility, weight and probability of each solution
+    private final double mutationRate, crossoverRate;       // Rate of mutation and rate of crossover applied to population
+    private final Random rand;
     
     /**
      * Constructor for the second GA problem.
@@ -35,10 +36,10 @@ public class GAProblem2
     private void createPopulation()
     {
         population = new CandidateP2[popSize];
-        for (int i = 0; i < popSize; i++) {
+        for (int pop = 0; pop < popSize; pop++) {
             boolean[] sol = new boolean[solSize];
             for (int j = 0; j < solSize; j++) sol[j] = rand.nextBoolean();
-            population[i] = new CandidateP2(sol);
+            population[pop] = new CandidateP2(sol);
         }
         calculateUtilWeightAndProb();
     }
@@ -49,22 +50,23 @@ public class GAProblem2
      */
     private void calculateUtilWeightAndProb()
     {
-        for (int i = 0; i < popSize; i++) {
-            weight[i] = population[i].getWeight();
-            utility[i] = population[i].getUtility();
-            probabilityFit[i] = utility[i];              
+        int pop;
+        for (pop = 0; pop < popSize; pop++) {
+            weight[pop] = population[pop].getWeight();
+            utility[pop] = population[pop].getUtility();
+            probabilityFit[pop] = utility[pop];
         }     
         
-        // Gets the sum of all fitnesses.             
+        // Gets the sum of all fitnesses.
         double sumFit = 0.0;
-        for (int i = 0; i < popSize; i++) sumFit += utility[i];
+        for (pop = 0; pop < popSize; pop++) sumFit += utility[pop];
         
         // Get probability of each fitness
-        for (int i = 0; i < popSize; i++) {
-            probabilityFit[i] = (utility[i] / sumFit);
+        for (pop = 0; pop < popSize; pop++) {
+            probabilityFit[pop] = (utility[pop] / sumFit);
             
-            // Get cumulative probabiltiy
-            if (i != 0) probabilityFit[i] += probabilityFit[i-1];
+            // Get cumulative probability
+            if (pop != 0) probabilityFit[pop] += probabilityFit[pop-1];
         }
     }
     
@@ -79,29 +81,29 @@ public class GAProblem2
         for (int gen = 0; gen < lastGen; gen++) {               
             int start = 2;
             CandidateP2[] newPopulation = new CandidateP2[popSize];
-            CandidateP2[] elite = elitism(start);
+            CandidateP2[] elite = elitism();
             System.arraycopy(elite, 0, newPopulation, 0, elite.length);
             
-            for (int i = start; i < popSize; i += 2) {
+            for (int pop = start; pop < popSize; pop += 2) {
                 CandidateP2 parent1 = FPSelection();
                 CandidateP2 parent2 = FPSelection();
-                
+
+                assert parent1 != null;
+                assert parent2 != null;
                 CandidateP2 offSpring1 = crossover(parent1, parent2);
                 offSpring1 = mutation(offSpring1);
-                newPopulation[i] = offSpring1;
+                newPopulation[pop] = offSpring1;
                 
                 CandidateP2 offSpring2 = crossover(parent2, parent1);
                 offSpring2 = mutation(offSpring2);
-                newPopulation[i+1] = offSpring2;
+                newPopulation[pop+1] = offSpring2;
             }
             
             population = newPopulation;
             calculateUtilWeightAndProb();
             
             CandidateP2 fittest = getFittest();
-            if (fittest.getUtility() >= 203.0) {
-                return fittest.getSol();
-            }
+            if (fittest.getUtility() >= 203.0) return fittest.getSol();
         }        
         return getFittest().getSol();
     }
@@ -111,21 +113,20 @@ public class GAProblem2
      * Each candidate solution will have a probability
      * of being picked based on their fitness.
      * The lower the fitness, the higher the probability.
+     * @return Selected solution.
      */
     private CandidateP2 FPSelection()
     {        
         // Use cumulative probability table to pick random
         // solution.
         double pick = Math.random();
-        for (int i = 0; i < popSize; i++) {
-            if (i == 0) {
-                if (pick < probabilityFit[i] && pick >= 0) {
-                    return population[i];
-                }
+        for (int pop = 0; pop < popSize; pop++) {
+            if (pop == 0) {
+                if (pick < probabilityFit[pop] && pick >= 0)
+                    return population[pop];
             }
-            else if (pick <= probabilityFit[i] && pick > probabilityFit[i-1]) {
-                return population[i];
-            }
+            else if (pick <= probabilityFit[pop] && pick > probabilityFit[pop-1])
+                return population[pop];
         }       
         return null;
     }
@@ -134,17 +135,15 @@ public class GAProblem2
      * Picks the n best solutions from the current population
      * and put them straight in the new population with no
      * mutation or crossover.
-     * @param num - Number of best solutions to be sent to 
-     * the new population.
      * @return Array of the n best solutions.
      */
-    public CandidateP2[] elitism(int num)
+    public CandidateP2[] elitism()
     {
         List<CandidateP2> tempPop = Arrays.asList(population);
         tempPop.sort(Comparator.comparing(CandidateP2::getUtility));
         
         int len = tempPop.size();
-        return new CandidateP2[]{tempPop.get(len - 1), tempPop.get(len - 2)};
+        return new CandidateP2[] {tempPop.get(len - 1), tempPop.get(len - 2)};
     }
     
     /**
@@ -163,9 +162,9 @@ public class GAProblem2
         if (pick < crossoverRate) {
             boolean[] newSol = new boolean[solSize];
             int crossPoint = rand.nextInt(solSize - 1) + 1;
-            for (int i = 0; i < solSize; i++) {
-                if (i < crossPoint) newSol[i] = sol1[i];
-                else newSol[i] = sol2[i];                
+            for (int sol = 0; sol < solSize; sol++) {
+                if (sol < crossPoint) newSol[sol] = sol1[sol];
+                else newSol[sol] = sol2[sol];
             }
             return new CandidateP2(newSol);
         }
@@ -199,10 +198,9 @@ public class GAProblem2
     public CandidateP2 getFittest()
     {
         CandidateP2 best = population[0];
-        for (int i = 1; i < popSize; i++) {
-            if (population[i].getUtility() > best.getUtility()) {
-                best = population[i];
-            }
+        for (int pop = 1; pop < popSize; pop++) {
+            if (population[pop].getUtility() > best.getUtility())
+                best = population[pop];
         }
         return best;
     }   
