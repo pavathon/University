@@ -1,5 +1,3 @@
-import java.lang.Math;
-import java.util.*;
 /**
  * Candidate Solution class which stores a solution for a
  * Genetic Algorithm and its fitness for the first problem.
