@@ -1,3 +1,4 @@
+
 import java.lang.Math;
 import java.util.*;
 
@@ -12,9 +13,9 @@ public class GAProblem1
 {
     private CandidateP1[] population;                   // Population which consists of candidate solutions
     private final int solSize, popSize;                 // Size of solutions and population
-    private double[] fitness, probabilityFit;           // One stores the fitness of each solution, other stores probability of each solution being picked.
+    private final double[] fitness, probabilityFit;     // One stores the fitness of each solution, other stores probability of each solution being picked.
     private final double mutationRate, crossoverRate;   // Rate of mutation and rate of crossover applied to population
-    private Random rand;                        
+    private final Random rand;
     
     /**
      * Constructor for the first GA problem.
@@ -36,12 +37,12 @@ public class GAProblem1
     private void createPopulation()
     {
         population = new CandidateP1[popSize];
-        for (int i = 0; i < popSize; i++) {
+        for (int pop = 0; pop < popSize; pop++) {
             double[] sol = new double[solSize];
             for (int j = 0; j < solSize; j++) {
                 sol[j] = (10.0 * Math.random()) - 5.0;
             }
-            population[i] = new CandidateP1(sol);
+            population[pop] = new CandidateP1(sol);
         }        
         calculateFitnessAndProb();
     }
@@ -52,25 +53,26 @@ public class GAProblem1
      */
     private void calculateFitnessAndProb()
     {
-        for (int i = 0; i < popSize; i++) {
-            fitness[i] = population[i].getFitness();              
+        int pop;
+        for (pop = 0; pop < popSize; pop++) {
+            fitness[pop] = population[pop].getFitness();
         }     
         
         // Gets the sum of all fitnesses.             
         double sumFit = 0.0;
-        for (int i = 0; i < popSize; i++) {
-            sumFit += fitness[i];
+        for (pop = 0; pop < popSize; pop++) {
+            sumFit += fitness[pop];
         }
         
         // Get probability of each fitness
         double numer = sumFit / popSize;
         double denom = sumFit * popSize;
-        for (int i = 0; i < popSize; i++) {
-            probabilityFit[i] = ((sumFit - fitness[i]) + numer) / denom;
+        for (pop = 0; pop < popSize; pop++) {
+            probabilityFit[pop] = ((sumFit - fitness[pop]) + numer) / denom;
             
             // Get cumulative probability
-            if (i != 0) {
-                probabilityFit[i] += probabilityFit[i-1];
+            if (pop != 0) {
+                probabilityFit[pop] += probabilityFit[pop-1];
             }
         }       
     }
@@ -89,19 +91,19 @@ public class GAProblem1
             CandidateP1[] elite = elitism(start);
             System.arraycopy(elite, 0, newPopulation, 0, elite.length);
             
-            for (int i = start; i < popSize; i++) {
+            for (int pop = start; pop < popSize; pop++) {
                 CandidateP1 parent1 = FPSelection();
                 CandidateP1 parent2 = FPSelection();
                 
                 CandidateP1 offSpring = crossover(parent1, parent2);
                 offSpring = mutation(offSpring, gen, lastGen);
-                newPopulation[i] = offSpring;               
+                newPopulation[pop] = offSpring;
             }
             
             population = newPopulation;
             calculateFitnessAndProb();
             CandidateP1 fittest = getFittest();
-            if (fittest.getFitness() == 0.0) {
+            if (fittest.getFitness() == 0) {
                 return fittest.getSol();
             }
         }        
@@ -120,14 +122,14 @@ public class GAProblem1
         // Use cumulative probability table to pick random
         // solution.
         double pick = Math.random();
-        for (int i = 0; i < popSize; i++) {
-            if (i == 0) {
-                if (pick < probabilityFit[i] && pick >= 0) {
-                    return population[i];
+        for (int pop = 0; pop < popSize; pop++) {
+            if (pop == 0) {
+                if (pick < probabilityFit[pop] && pick >= 0) {
+                    return population[pop];
                 }
             }
-            else if (pick <= probabilityFit[i] && pick > probabilityFit[i-1]) {
-                return population[i];
+            else if (pick <= probabilityFit[pop] && pick > probabilityFit[pop-1]) {
+                return population[pop];
             }
         }       
         // This shouldn't happen if probability is implemented
@@ -149,25 +151,22 @@ public class GAProblem1
         tempPop.sort(Comparator.comparing(CandidateP1::getFitness));
         
         CandidateP1[] bestCS = new CandidateP1[num];
-        int len = tempPop.size();
-        for (int i = 0; i < num; i++) {
-            bestCS[i] = tempPop.get(i);
-        }
+        for (int sol = 0; sol < num; sol++) bestCS[sol] = tempPop.get(sol);
+
         return bestCS;
     }
         
     /**
      * Calculates the value in which the solution should be mutated by.
-     * @param curGen - current generation of the population.
-     * @param maxGen - max generation of the population.
-     * @param value - Current value in the solution to be mutated.
+     * @param curGen Current generation of the population.
+     * @param maxGen Max generation of the population.
+     * @param value Current value in the solution to be mutated.
      * @return value in which the solution should be mutated by.
      */
     private double mutFunc(int curGen, int maxGen, double value)
     {
-        double power = 1 - (curGen / maxGen);
-        double randConst = Math.random();
-        double randPow = 1 - (Math.pow(randConst, power));
+        int power = 1 - (curGen / maxGen);
+        double randPow = 1 - (Math.pow(Math.random(), power));
         double raised = Math.pow(randPow, 200);
         return value * raised;
     }
@@ -175,25 +174,22 @@ public class GAProblem1
     /**
      * If a solution is set to be mutated, one if its values
      * will be changed according to different parameters.
-     * Paramaters include current generation, max generation
+     * Parameters include current generation, max generation
      * and the actual range of the values.
-     * @param curGen - current generation of the population.
-     * @param maxGen - max generation of the population.
+     * @param curGen Current generation of the population.
+     * @param maxGen Max generation of the population.
      */
     private CandidateP1 mutation(CandidateP1 cs, int curGen, int maxGen)
     {           
         cs.updateFitness();
         CandidateP1 newCS = new CandidateP1(cs.getSol());
-                
-        double pick = Math.random();
-        if (pick < mutationRate) {
-            double tau = Math.random();
+
+        if (Math.random() < mutationRate) {
             int index = rand.nextInt(solSize);
             double value = newCS.getSol()[index];
-            if (tau < 0.5) 
-                newCS.mutate(index, false, mutFunc(curGen, maxGen, (value + 5.0)));
-            else 
-                newCS.mutate(index, true, mutFunc(curGen, maxGen, (5.0 - value)));           
+
+            if (Math.random() < 0.5) newCS.mutate(index, false, mutFunc(curGen, maxGen, (value + 5.0)));
+            else newCS.mutate(index, true, mutFunc(curGen, maxGen, (5.0 - value)));
         }                                  
         return newCS;
     }
@@ -201,9 +197,9 @@ public class GAProblem1
     /**
      * Produce a new Candidate Solution (offspring) from 
      * two parent solutions from the current population.
-     * @param parent1 - First parent solution.
-     * @param parent2 - Second parent solution.
-     * @return offSpring of the two parent solutions.
+     * @param parent1 First parent solution.
+     * @param parent2 Second parent solution.
+     * @return OffSpring of the two parent solutions.
      */
     private CandidateP1 crossover(CandidateP1 parent1, CandidateP1 parent2)
     {             
@@ -213,14 +209,16 @@ public class GAProblem1
         double pick = Math.random();
         if (pick < crossoverRate) {
             double[] newSol = new double[solSize];
-            for (int i = 0; i < solSize; i++) {
-                double alpha = 0.1;
-                double max = Math.max(sol1[i], sol2[i]);
-                double min = Math.min(sol1[i], sol2[i]);
-                double range = max - min;
-                double lowBound = min - (range * alpha);
-                double upBound = max + (range * alpha);
-                newSol[i] = lowBound + (upBound - lowBound) * rand.nextDouble();
+
+            for (int sol = 0; sol < solSize; sol++) {
+                double max, min, range, lowBound, upBound;
+
+                max = Math.max(sol1[sol], sol2[sol]);
+                min = Math.min(sol1[sol], sol2[sol]);
+                range = max - min;
+                lowBound = min - (range * 0.1);
+                upBound = max + (range * 0.1);
+                newSol[sol] = lowBound + (upBound - lowBound) * rand.nextDouble();
             }
             return new CandidateP1(newSol);
         }
@@ -241,9 +239,9 @@ public class GAProblem1
     public CandidateP1 getFittest()
     {
         CandidateP1 best = population[0];
-        for (int i = 1; i < popSize; i++) {
-            if (population[i].getFitness() < best.getFitness()) 
-                best = population[i];
+        for (int pop = 1; pop < popSize; pop++) {
+            if (population[pop].getFitness() < best.getFitness())
+                best = population[pop];
         }
         return best;
     }
