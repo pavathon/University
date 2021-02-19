@@ -3,7 +3,7 @@ import java.lang.Math;
 import java.util.*;
 
 /**
-* Algorithm used to solve a Black Box problem which has 20 dials which have
+* Genetic Algorithm used to solve a Black Box problem which has 20 dials which have
 * real values ranging from -5.0 to 5.0.
 *
 * @author Mark Browne
