@@ -57,26 +57,13 @@ public class CandidateP1
     
     /**
      * Change the values in the solution based on the rate.
-     * @param rate Rate on which a value is to be changed.
+     * @param index Index of value in solution to be changed.
      * @param addOrSub Whether to add or subtract from value.
      * @param change actual change to be added or subtracted to value.
      */
-    public void mutate(double rate, boolean addOrSub, double change)
-    {        
-        if (!addOrSub) {
-            change *= -1;
-        }
-        
-        for (int i = 0; i < solution.length; i++) {
-            double pick = Math.random();
-            if (pick < rate) {
-                double[] temp = solution;
-                temp[i] += change;
-                if (Assess.getTest1(temp) < fitness) {
-                    solution[i] += change;
-                    updateFitness();
-                }
-            }
-        }
-    } 
+    public void mutate(int index, boolean addOrSub, double change)
+    {
+        if (!addOrSub) change *= -1;
+        solution[index] += change;
+    }
 }
