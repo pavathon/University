@@ -1,3 +1,8 @@
 # University
 
 These are the Java assignments for my university.
+
+18 Assignment 1 - Assignment in which I had to implement a mathematical set. Includes interfaces, trees and junit test classes.
+18 Assignment 2 - Assignment in which I had to implement an algorithm for the Tower of Hanoi problem.
+20 Assignment 3 - Assignment in which I had to create a rudimentary version of the game minesweeper using the Java Swing toolkit.
+28 Assignment 1 - Assignment in which I had to implement a Genetic Algorithms for two problems, namely the Black Box and Knapsack problem.
