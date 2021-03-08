@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+<head>
+<title>Question 2</title>
+<style>
+#form {
+  margin-bottom: 20px;
+}
+#main div {
+  width: 90px;
+  height: 10vh;
+  float: left;
+  text-align: center;
+}
+.box {
+  padding-top: calc(5vh + 1em);
+  font-weight: bold;
+}
+</style>
+<script>
+// Returns the main box element
+function getMainDiv()
+{
+	return document.getElementById("main");
+}
+
+// Returns the form element
+function getForm()
+{
+	return document.getElementById("form");
+}
+
+// Sets random colour for background of box element
+function getRandColour(box)
+{
+	var num1 = Math.round(Math.random()*255);
+	var num2 = Math.round(Math.random()*255);
+	var num3 = Math.round(Math.random()*255);
+	box.style.background = "rgb("+num1+", "+num2+", "+num3+")";
+}
+
+// Remove the boxes from the screen
+function clearBoxes()
+{
+	var main = getMainDiv();
+	var child = main.lastElementChild;
+	while (child) {
+		main.removeChild(child);
+		child = main.lastElementChild;
+	}
+}
+
+// Creates the boxes (box elements) 
+function draw()
+{
+	var main = getMainDiv();
+	clearBoxes(main);
+	
+	// The size of margin left property
+	var margin = 5;
+	
+	// The value inputted by the user
+	var input = getForm().elements["numBox"].value;
+	
+	// Creates an amount of boxes specified by the user
+	for (var i = 0; i < input; i++) {
+		var box = document.createElement("div");
+		box.innerHTML = i + 1;
+		getRandColour(box);
+		box.className = "box";
+		box.style.marginLeft = margin + "px";
+		margin *= 2;
+		main.appendChild(box);
+	}
+}
+</script>
+</head>
+
+<body>
+<!-- Creates a series of rectangles which get further apart after every subsequent rectangle -->
+
+<!-- The inputs that the user will interact with -->
+<form id="form">
+<input type="text" name="numBox"/>
+<input type="button" value="Draw" onClick="draw();"/>
+</form>
+
+<!-- All boxes (div elements) will be stored in this div element -->
+<div id="main"></div>
+</body>
+</html>

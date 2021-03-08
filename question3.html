@@ -1,0 +1,218 @@
+<!doctype html>
+<html>
+<head>
+<title>Question 3</title>
+<style>
+body {
+  font-family: sans-serif, sans-serif;
+}
+#header {
+  color: black;
+}
+#grid-container {
+  display: grid;
+  grid-template-columns: 15vw 15vw 15vw;
+  padding: 10px;
+}
+.grid-item {
+  border: 1px solid grey;
+  padding: 10%;
+  margin: 10%;
+  font-size: 30%;
+  color: white;
+  text-align: center;
+}
+</style>
+<script>
+// Determines whether its player X's or player O's turn
+var turnX = true;
+
+// 2D array which records the changes in the content of the boxes
+// Essentially mimics the state of the game
+var values = new Array(3);
+for (var i = 0; i < values.length; i++) {
+	values[i] = new Array(3);
+}
+
+// Returns the main div element which stores all the boxes
+function getMainDiv()
+{
+	return document.getElementById("grid-container");
+}
+
+// Returns the header element
+function getHeader()
+{
+	return document.getElementById("header");
+}
+
+// Reloads the webpage. Resets the game
+function resetGame()
+{
+	window.location.reload();
+}
+
+// Check whether players have filled up all the boxes
+function checkDraw()
+{
+	var draw = true;
+	var i = 0;
+	// Check whether there are any boxes still left to be used
+	while (draw && i < 3) {
+		for (var j = 0; j < values.length; j++) {
+			if (values[i][j] != "X" && values[i][j] != "O") {
+				draw = false;
+				break;
+			}
+		}
+		i++;
+	}
+	console.log(i);
+	
+	// If no more moves left, show game over for both players
+	if (draw) {
+		getHeader().innerHTML = "Game Over. No one won.";
+		stopMoves();
+	}
+}
+
+// Checks whether winning condition is reached
+// Parameters: Gets the row and column position of the last move 
+// made by the current player
+function checkWin(rowPos, colPos)
+{
+	var winningBoxes;
+	
+	// Check row win condition
+	if (values[rowPos][0] == values[rowPos][1] && values[rowPos][1] == values[rowPos][2]) {
+		winningBoxes = [ [rowPos,0], [rowPos,1], [rowPos,2] ];
+	}
+	// Check column win condition
+	else if (values[0][colPos] == values[1][colPos] && values[1][colPos] == values[2][colPos]) {
+		winningBoxes = [ [0,colPos], [1,colPos], [2,colPos] ];
+	}
+	// Check diagonal win condition
+	else if (rowPos == colPos) {
+		if (values[0][0] == values[1][1] && values[1][1] == values[2][2]) {
+			winningBoxes = [ [0,0], [1,1], [2,2] ];
+		}			
+	}
+	// Check anti diagonal win condition
+	else if ((rowPos - colPos) % 2 == 0) {
+		if (values[0][2] == values[1][1] && values[1][1] == values[2][0]) {
+			winningBoxes = [ [0,2], [1,1], [2,0] ];
+		}
+	}
+	
+	// If a winning condition has been reached, show who won
+	// Else check whether losing condition has been reached
+	if (winningBoxes != null) doWin(winningBoxes);
+	else                      checkDraw();
+	
+}
+
+// Show status of who won
+function doWin(winningBoxes)
+{
+	// Changes the text to show which player won
+	var head = getHeader();
+	head.innerHTML = "Player ";
+	if (turnX) head.innerHTML += "X ";
+	else       head.innerHTML += "O ";
+	
+	head.innerHTML += "wins!";
+	
+	// Change winning boxes background to yellow
+	for (var i = 0; i < winningBoxes.length; i++) {
+		// Index from 2D array
+		var index2D = winningBoxes[i][0] + "" + winningBoxes[i][1];
+		
+		// Convert index from 2D to 1D by treating 2D index as base 3
+		var index1D = parseInt(index2D, 3);
+		getMainDiv().children[index1D].style.backgroundColor = "yellow";
+	}
+	
+	stopMoves();
+}
+
+// Stop players from making any more moves
+function stopMoves()
+{
+	var boxes = getMainDiv().children;
+	for (var i = 0; i < boxes.length; i++) {
+		boxes[i].onclick = null;
+	}
+}
+
+// Change content of value array
+function addToArray(pos)
+{
+	// Gets position of box from content
+	var positions = pos.split("");
+	var row = parseInt(positions[0]);
+	var col = parseInt(positions[1]);
+	
+	if (turnX) values[row][col] = "X";
+	else       values[row][col] = "O";
+	
+	checkWin(row, col);
+}
+
+// Fill the given box with either X or O
+function change(box)
+{
+	var pos = box.innerHTML;
+	if (pos != "X" && pos != "O") {
+		if (turnX) {
+			box.innerHTML = "X";
+			box.style.color = "red";
+		}
+		else {
+			box.innerHTML = "O";
+			box.style.color = "green";
+		}
+		addToArray(pos);
+		turnX = !turnX;
+	}
+}
+</script>
+</head>
+
+<body>
+<!-- TicTacToe game -->
+
+<!-- Will change whether one player or neither player wins -->
+<h1 id="header">TicTacToe</h1>
+
+<!-- Main grid which stores all the boxes -->
+<div id="grid-container"></div>
+
+<!-- Resets the game to its original state -->
+<button onClick="resetGame();">Reset</button>
+
+<!-- Generate all the boxes in javascript rather than html -->
+<script>
+// Get the main div element
+var main = getMainDiv();
+
+// Create the 9 values in the boxes and add them to values array
+// Starting content in the boxes represents their index in a 2D array
+var count = [0,0];
+for (var i = 0; i < values.length; i++) {
+	for (var j = 0; j < values.length; j++) {
+		var box = document.createElement("div");
+		box.className = "grid-item";
+		box.style.color = "white";
+		box.innerHTML = count[0] + "" + count[1];
+		box.style.fontSize = "50px";
+		box.onclick = function(){change(this)};
+		main.appendChild(box);
+		values[i][j] = box.innerHTML;
+		count[1] = j+1;
+	}
+	count[0] = i+1;
+	count[1] = 0;
+}
+</script>
+</body>
+</html>

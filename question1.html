@@ -1,0 +1,197 @@
+<!doctype html>
+<html>
+<head>
+<title>Question 1</title>
+<style>
+#form {
+  margin-bottom: 30px;
+}
+#table {
+  border-collapse: collapse;
+  margin: 30px;
+  margin-left: 0px;
+}
+th, td, table {
+  border: solid 1px #000;
+  text-align: center;
+  padding: 10px;
+}
+th {
+  background: #F93;
+}
+.button {
+  margin-top: 5px;
+  margin-right: 20px;
+}
+.inputs {
+  margin: 5px;
+}
+</style>
+<script>
+// Used to check what background colour the row should have
+var rowIsEven = true;
+
+// Returns the form element
+function getFormId()
+{
+	return document.getElementById("form");
+}
+
+// Returns table element 
+function getTableId()
+{
+	return document.getElementById("table");
+}
+
+// Checks whether age input is valid 
+function checkAge(strAge)
+{
+	var age = parseInt(strAge);
+	return !(isNaN(age) || age < 18 || age > 60);
+}
+
+// Checks whether date input is valid
+function checkDate(date)
+{
+	var year = date.substring(0, 4);
+	return year == "2020";
+}
+
+// Removes row from table
+function delRow(obj)
+{
+	getTableId().removeChild(obj);
+	// Decrements caption value
+	changeCap("decrement");
+}
+
+// Increments or decrements number in caption
+function changeCap(check)
+{
+	var caption = getTableId().firstElementChild;
+	var num = parseInt(caption.innerHTML.charAt(0));
+	switch (check) {
+		case "increment":
+			num++;
+			break;
+		case "decrement":
+			num--;
+			break;
+	}
+	caption.innerHTML = num + " Row";
+	if (num != 1) caption.innerHTML += "s";
+}
+
+// Creates delete button for the row
+function addDeleteButton(row)
+{
+	var del = document.createElement("button");
+	del.type = "button";
+	del.innerHTML = "Delete";
+	del.onclick = function(){delRow(row)};
+	row.appendChild(del);
+}
+
+// Used to alternate the background colour of each row
+function changeRowColour(row)
+{
+	if (rowIsEven) row.style.backgroundColor = "#FFD9B3";
+	else           row.style.backgroundColor = "#FFFF80";
+	rowIsEven = !rowIsEven;
+}
+
+// Creates a new row in the table with input as content
+function putOnTable() 
+{
+	// Stores all the input elements
+	var inputs = getFormId().elements;
+	
+	var validAge = checkAge(inputs["age"].value);
+	var validDate = checkDate(inputs["actualDate"].value);
+	
+	// If age and date are valid then create row
+	// Else do not create row and show message 
+	if (validAge && validDate) { 
+		// Creates a new row and adds it to table element
+		var row = document.createElement("tr");
+		
+		// Iterate through all input elements except the buttons
+		// and inches input and display them in the table
+		for (var i = 0; i < inputs.length - 2; i++) {
+			var input = inputs[i];
+			
+			// Displays content of input element in the table
+			var cell = document.createElement("td");
+			cell.innerHTML = input.value;
+			if (input.name == "feet") {
+				cell.innerHTML += "'";
+				var inches = inputs[i+1].value;
+				if (inches != 0) cell.innerHTML += inches + "''";
+				i++;
+			}
+			row.appendChild(cell);
+		}
+		
+		addDeleteButton(row);
+		changeRowColour(row);
+		
+		getTableId().appendChild(row);
+		
+		changeCap("increment");
+	}
+	else {
+		var invalidMessage = "";
+		if (!validAge)  invalidMessage += "Age is not valid: Must be between 18-60\n";		
+		if (!validDate) invalidMessage += "Date is not valid: Year must be 2020";
+		alert(invalidMessage);
+	}
+}
+</script>
+</head>
+
+<body>
+<!-- Using forms and displaying it in a table-->
+
+<!-- All the inputs that the user will interact with -->
+<form id="form">
+<b>Name:</b> <input type="text" name="username" class="inputs"/><br/>
+<b>Age:</b> <input type="number" name="age" class="inputs"/><br/>
+
+<!-- Height displayed as two drop downs for feet and inches -->
+<b>Height:</b> 
+Feet: <select name="feet" class="inputs">
+  <option value="4">4</option>
+  <option value="5">5</option>
+  <option value="6">6</option>
+</select>
+Inches: <select name="inches" class="inputs">
+  <option value="0">0</option>
+  <option value="1">1</option>
+  <option value="2">2</option>
+  <option value="3">3</option>
+  <option value="4">4</option>
+  <option value="5">5</option>
+  <option value="6">6</option>
+  <option value="7">7</option>
+  <option value="8">8</option>
+  <option value="9">9</option>
+  <option value="10">10</option>
+  <option value="11">11</option>
+</select><br/>
+
+<label for="date"><b>Date:</b></label>
+<input type="date" name="actualDate" class="inputs"/><br/>
+
+<input type="reset" value="Reset" class="button"/>
+<input type="reset" value="Display" class="button" onClick="putOnTable();"/>
+</form>
+
+<!-- Displays information of user into table -->
+<!-- All input provided by user will be displayed on the rows in this table -->
+<table id="table">
+  <caption>0 Rows</caption>
+
+  <tr> <th>Name</th> <th>Age</th> <th>Height</th> <th>Date</th> </tr>
+</table>
+</body>
+</html>
